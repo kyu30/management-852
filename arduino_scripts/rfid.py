@@ -37,7 +37,7 @@ def card_check(df): #use to control access
                         if id in df.index: #Runs below code if the UID is in the given dataframe
                             in_df = True #This variable stores whether or not the UID is in the dataframe or not (True/False)
                             user_info = df.loc[id] #Stores all the information associated with the UID in the user_info variable
-                            if (dt.now() - df.loc[id, 'LastUsed']).days > 30: #Checks if the last time the card was used was within a month ago
+                            if ((dt.now() - df.loc[id, 'LastUsed']).days > 30 and df.loc['Permission'] != 'Owner'): #Checks if the last time the card was used was within a month ago
                                 print("Card expired") #Card is expired if the last time the card was used was more than a month (30 days) ago
                                 time = False #This variable stores whether or not the card expired
                             else:
