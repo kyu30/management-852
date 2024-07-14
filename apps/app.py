@@ -11,7 +11,6 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "087a796b50a899f025bf0360f009a02a"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
