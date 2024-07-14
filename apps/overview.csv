@@ -1,7 +1,7 @@
 ,UID,User,Permission,Door,Time
 0,84 B8 C8 72,Keith,Owner,Office,7/3/2024 15:57
 1,12 34 56 78,Candy,Employee,Guest,7/4/2024 18:23
-2,1A 2B 3C 4D,Jenny,Guest,Guest,6/30/2024 20:21
+2,1A 2B 3C 4D,Jenny,Owner,Guest,6/30/2024 20:21
 3,AB CD EF 12,Calvin,Manager,Inventory,7/3/2024 15:57
 4,84 B8 C8 72,Keith,Owner,Locker,7/4/2024 18:23
 5,12 34 56 78,Candy,Employee,Office,6/30/2024 20:21
