@@ -3,14 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, RegisterForm
+from dotenv import load_dotenv
 from datetime import datetime as dt
 from datetime import time, date, timedelta
 import pandas as pd
 import secrets
 import logging
+import os
+
+load_dotenv()
 
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
