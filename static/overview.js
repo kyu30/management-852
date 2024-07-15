@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const name = document.getElementById('name').value;
         const permissions = document.getElementById('permission').value;
         const door = document.getElementById('door').value;
+        const host = document.getElementById('host').value;
         const time = document.getElementById('time').value;
         addEntry(uid, name, permissions, host);
     });
@@ -29,6 +30,7 @@ function fetchWhitelist(){
                 <td>${entry.User}</td>
                 <td>${entry.Permission}</td>
                 <td>${entry.Door}</td>
+                <td>${entry.Host}</td>
                 <td>${entry.Time}</td>
                 `;
                 whitelist.appendChild(row);

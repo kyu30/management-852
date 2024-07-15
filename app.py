@@ -115,15 +115,16 @@ def add_entry():
         uid = data.get("uid", '').strip().upper()
         name = data.get("name", '').strip()
         access = data.get("permissions", '').strip()
+        host = data.get("host", 'host').strip()
         time = dt.now()
-        if not uid or not name or not access or not time:
+        if not uid or not name or not access or not time or not host:
                 logging.error(f"Invalid data received: {data}")
                 return jsonify({'status': 'error', 'message': 'Invalid data received'}), 400
         else:
-            df.loc[uid] = [access, name, time]
+            df.loc[uid] = [access, name, host, time]
             print(df)
             df.to_csv(whitelist)
-            logging.debug(f"Added entry: {uid}, {name}, {access},{time}")
+            logging.debug(f"Added entry: {uid}, {name}, {access},{host},{time}")
             return jsonify({'status': 'success'})
     except Exception as e:
         logging.error(f"Error adding entry: {e}")

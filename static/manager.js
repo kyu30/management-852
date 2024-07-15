@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function(){
         const uid = document.getElementById('uid').value;
         const name = document.getElementById('name').value;
         const permissions = document.getElementById('permission').value;
-        addEntry(uid, name, permissions);
+        const host = document.getElementsByName('host').value;
+        addEntry(uid, name, permissions, host);
     });
 });
 
@@ -23,6 +24,7 @@ function fetchWhitelist(){
                 <td>${entry.UID}</td>
                 <td>${entry.User}</td>
                 <td>${entry.Permission}</td>
+                <td>${entry.Host}</td>
                 <td>${entry.LastUsed}</td>
                 <td><button onclick = "deleteEntry('${entry.UID}')">Delete</button></td>
                 `;
@@ -31,8 +33,8 @@ function fetchWhitelist(){
     }).catch(error => console.error('Error fetching whitelist: ', error));
 }
 
-function addEntry(uid, name, permissions){
-    console.log('Adding entry:', { uid, name, permissions });
+function addEntry(uid, name, permissions, host){
+    console.log('Adding entry:', { uid, name, permissions, host });
     fetch('/add_entry', {
         method: 'POST',
         headers: {
