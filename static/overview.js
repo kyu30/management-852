@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const permissions = document.getElementById('permission').value;
         const door = document.getElementById('door').value;
         const time = document.getElementById('time').value;
-        addEntry(uid, name, permissions);
+        addEntry(uid, name, permissions, host);
     });
 });
 

@@ -123,7 +123,7 @@ def add_entry():
             df.loc[uid] = [access, name, time]
             print(df)
             df.to_csv(whitelist)
-            logging.debug(f"Added entry: {uid}, {name}, {access}, {time}")
+            logging.debug(f"Added entry: {uid}, {name}, {access},{time}")
             return jsonify({'status': 'success'})
     except Exception as e:
         logging.error(f"Error adding entry: {e}")

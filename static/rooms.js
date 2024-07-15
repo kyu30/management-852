@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function(){
             const uid = document.getElementById('uid').value;
             const name = document.getElementById('name').value;
             const permissions = document.getElementById('permission').value;
-            const door = document.getElementById('door').value;
+            const door = document.getElementById('door').value;z
             const time = document.getElementById('time').value;
             addEntry(uid, name, permissions);
         })
