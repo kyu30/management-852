@@ -4,7 +4,9 @@ import csv
 import pandas as pd
 from datetime import datetime as dt
 from datetime import time, date, timedelta
+import paho.mqtt.client as mqtt
 
+MQTT_SERVER = "localhost"
 data1 = {
     "UID": ["84 B8 C8 72"],
     "User": ["Keith"],
