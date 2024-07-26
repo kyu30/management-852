@@ -7,6 +7,9 @@ from datetime import time, date, timedelta
 import paho.mqtt.client as mqtt
 
 MQTT_SERVER = "localhost"
+MQTT_TOPIC_SUB = "test/topic"
+MQTT_TOPIC_PUB = "test/response"
+
 data1 = {
     "UID": ["84 B8 C8 72"],
     "User": ["Keith"],
@@ -21,11 +24,55 @@ data2 = {
     "User": ["Keith"],
     "LastUsed": [dt.now()-timedelta(days=20)] #Used this to test LastUsed range for card
 }
+
+def on_connect(client, userdata, flags, rc):
+    print(f"connected with result code {rc}")
+    client.subscribe(MQTT_TOPIC_SUB)
+def on_message(client, userdata, msg):
+    print(f"Message received: {msg.payload.decode()}")
+    rfid_data = msg.payload.decode()
+    print(f"UID: {rfid_data}")
+    client_id, uid = rfid_data.split('-')
+    if uid in df.index():
+        in_df = True #This variable stores whether or not the UID is in the dataframe or not (True/False)
+        user_info = df.loc[id] #Stores all the information associated with the UID in the user_info variable
+        if ((dt.now() - df.loc[id, 'LastUsed']).days > 30 and df.loc['Permission'] != 'Owner'): #Checks if the last time the card was used was within a month ago
+            print("Card expired") #Card is expired if the last time the card was used was more than a month (30 days) ago
+            time = False #This variable stores whether or not the card expired
+        else:
+            df.loc[id, "LastUsed"] = dt.now() #Sets the new LastUsed to now, saves all new information/overwrites existing info into a csv/spreadsheet
+            df.to_csv('whitelist.csv')
+            print(user_info.to_string() + "\nCard recognized, access granted") #Writes message to user
+            time = True
+            df1.loc[len(df1.index)] = [id, df.loc[id, 'User'], df.loc[id, 'Permission'], dt.now()]
+            df1.to_csv('overview.csv')
+    else:
+        in_df = False
+        print("Card not recognized")
+    if (in_df == True) and (time == True):
+        print("Access Granted")
+        client.publish(MQTT_TOPIC_PUB, 'open')
+    else:
+        print("Acess Denied")
+    
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect(MQTT_SERVER, 1863, 60)
+client.loop_start()
+
 df1 = pd.DataFrame(data1)
 df = pd.DataFrame(data2) #Creates a dataframe using the example csv
 df = df.set_index("UID")
 df1.to_csv("overview.csv")
-def card_check(df): #use to control access
+
+try:
+    while True:
+        pass
+except KeyboardInterrupt:
+    client.loop.stop()
+    client.disconnect()
+'''def card_check(df): #use to control access
     print("Tap Card")
     ser = serial.Serial('COM6', 9600) #Links to the arduino program's Serial Monitor (info recorded by the Arduino)
     #time.sleep(2)
@@ -128,3 +175,4 @@ def add_update(df): #Use for adding cards
 #card_check(df)
 #add_update(df)
 
+'''
