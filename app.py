@@ -156,8 +156,6 @@ def access_check():
         if (dt.now() - last_used).days > 30 and permission != 'Owner':
             time = False
         else:
-            print(type(whitelist), whitelist)
-            print(type(overview), overview)
             df.loc[rfid, 'LastUsed'] = dt.now()
             df.to_csv(whitelist)  # Save the updated last used time
             print(f"User Info: {user_info}\nCard recognized, access granted")
