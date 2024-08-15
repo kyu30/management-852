@@ -1,28 +1,29 @@
-,UID,User,Permission,Door,Host,Time
-0,84 B8 C8 72,Keith,Owner,Office,Owner,7/3/2024 15:57
-1,12 34 56 78,Candy,Employee,Guest,Keith,7/4/2024 18:23
-2,1A 2B 3C 4D,Jenny,Guest,Guest,Calvin,6/30/2024 20:21
-3,AB CD EF 12,Calvin,Manager,Inventory,Owner,7/3/2024 15:57
-4,84 B8 C8 72,Keith,Owner,Locker,Owner,7/4/2024 18:23
-5,12 34 56 78,Candy,Employee,Office,Keith,6/30/2024 20:21
-6,1A 2B 3C 4D,Jenny,Guest,Guest,Calvin,7/3/2024 15:57
-7,AB CD EF 12,Calvin,Manager,Guest,Owner,7/4/2024 18:23
-8,84 B8 C8 72,Keith,Owner,Inventory,Owner,6/30/2024 20:21
-9,12 34 56 78,Candy,Employee,Locker,Keith,7/3/2024 15:57
-10,1A 2B 3C 4D,Jenny,Guest,Office,Calvin,7/4/2024 18:23
-11,AB CD EF 12,Calvin,Manager,Guest,Owner,6/30/2024 20:21
-12,84 B8 C8 72,Keith,Owner,Guest,Owner,7/3/2024 15:57
-13,12 34 56 78,Candy,Employee,Inventory,Keith,7/4/2024 18:23
-14,1A 2B 3C 4D,Jenny,Guest,Locker,Calvin,6/30/2024 20:21
-15,AB CD EF 12,Calvin,Manager,Office,Owner,7/3/2024 15:57
-16,84 B8 C8 72,Keith,Owner,Guest,Owner,7/4/2024 18:23
-17,12 34 56 78,Candy,Employee,Guest,Keith,6/30/2024 20:21
-18,1A 2B 3C 4D,Jenny,Guest,Inventory,Calvin,7/3/2024 15:57
-19,AB CD EF 12,Calvin,Manager,Locker,Owner,7/4/2024 18:23
-20,84 B8 C8 72,Keith,Owner,Office,Owner,6/30/2024 20:21
-21,12 34 56 78,Candy,Employee,Guest,Keith,7/3/2024 15:57
-22,1A 2B 3C 4D,Jenny,Guest,Guest,Calvin,7/4/2024 18:23
-23,AB CD EF 12,Calvin,Manager,Inventory,Owner,6/30/2024 20:21
-24,84 B8 C8 72,Keith,Owner,Locker,Owner,7/3/2024 15:57
-25,12 34 56 78,Candy,Employee,Office,Keith,7/4/2024 18:23
-26,64a2d372,Keith,Owner,Office,Keith, 2024-07-31 19:31:53.177711
+UID,Unnamed: 0,User,Permission,Door,Host,Time
+84 B8 C8 72,0,Keith,Owner,Office,Owner,7/3/2024 15:57
+12 34 56 78,1,Candy,Employee,Guest,Keith,7/4/2024 18:23
+1A 2B 3C 4D,2,Jenny,Guest,Guest,Calvin,6/30/2024 20:21
+AB CD EF 12,3,Calvin,Manager,Inventory,Owner,7/3/2024 15:57
+84 B8 C8 72,4,Keith,Owner,Locker,Owner,7/4/2024 18:23
+12 34 56 78,5,Candy,Employee,Office,Keith,6/30/2024 20:21
+1A 2B 3C 4D,6,Jenny,Guest,Guest,Calvin,7/3/2024 15:57
+AB CD EF 12,7,Calvin,Manager,Guest,Owner,7/4/2024 18:23
+84 B8 C8 72,8,Keith,Owner,Inventory,Owner,6/30/2024 20:21
+12 34 56 78,9,Candy,Employee,Locker,Keith,7/3/2024 15:57
+1A 2B 3C 4D,10,Jenny,Guest,Office,Calvin,7/4/2024 18:23
+AB CD EF 12,11,Calvin,Manager,Guest,Owner,6/30/2024 20:21
+84 B8 C8 72,12,Keith,Owner,Guest,Owner,7/3/2024 15:57
+12 34 56 78,13,Candy,Employee,Inventory,Keith,7/4/2024 18:23
+1A 2B 3C 4D,14,Jenny,Guest,Locker,Calvin,6/30/2024 20:21
+AB CD EF 12,15,Calvin,Manager,Office,Owner,7/3/2024 15:57
+84 B8 C8 72,16,Keith,Owner,Guest,Owner,7/4/2024 18:23
+12 34 56 78,17,Candy,Employee,Guest,Keith,6/30/2024 20:21
+1A 2B 3C 4D,18,Jenny,Guest,Inventory,Calvin,7/3/2024 15:57
+AB CD EF 12,19,Calvin,Manager,Locker,Owner,7/4/2024 18:23
+84 B8 C8 72,20,Keith,Owner,Office,Owner,6/30/2024 20:21
+12 34 56 78,21,Candy,Employee,Guest,Keith,7/3/2024 15:57
+1A 2B 3C 4D,22,Jenny,Guest,Guest,Calvin,7/4/2024 18:23
+AB CD EF 12,23,Calvin,Manager,Inventory,Owner,6/30/2024 20:21
+84 B8 C8 72,24,Keith,Owner,Locker,Owner,7/3/2024 15:57
+12 34 56 78,25,Candy,Employee,Office,Keith,7/4/2024 18:23
+64a2d372,26,Keith,Owner,Office,Keith, 2024-07-31 19:31:53.177711
+27,64A2D372,Owner,Keith,Guest,Office,2024-08-15 15:28:05.078609

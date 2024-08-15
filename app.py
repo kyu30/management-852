@@ -144,7 +144,7 @@ def delete_entry():
 
 @app.route('/access_check', methods=['GET'])
 def access_check():
-    rfid = request.args.get('rfid')
+    rfid = request.args.get('rfid').upper()
     print(f"RFID received: {rfid}")
     
     if rfid in df.index:
@@ -156,12 +156,14 @@ def access_check():
         if (dt.now() - last_used).days > 30 and permission != 'Owner':
             time = False
         else:
+            print(type(whitelist), whitelist)
+            print(type(overview), overview)
             df.loc[rfid, 'LastUsed'] = dt.now()
             df.to_csv(whitelist)  # Save the updated last used time
             print(f"User Info: {user_info}\nCard recognized, access granted")
             time = True
-            #df2.loc[len(df2.index)] = [rfid, df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], "Guest", df.loc[rfid, 'Host'], dt.now()]
-            df2.to_csv(overview)
+            df2.loc[len(df2.index)] = [rfid, df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], "Guest", df.loc[rfid, 'Host'], dt.now()]
+            df2.to_csv('overview.csv')
     else:
         in_df = False
         print("Card not recognized")
