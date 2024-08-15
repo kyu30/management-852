@@ -7,8 +7,8 @@ from datetime import time, date, timedelta
 import paho.mqtt.client as mqtt
 
 MQTT_SERVER = "localhost"
-MQTT_TOPIC_SUB = "test/topic"
-MQTT_TOPIC_PUB = "test/response"
+MQTT_TOPIC_SUB = "rfid/scan"
+MQTT_TOPIC_PUB = "door/control"
 
 data1 = {
     "UID": ["84 B8 C8 72"],
@@ -26,8 +26,12 @@ data2 = {
 }
 
 def on_connect(client, userdata, flags, rc):
-    print(f"connected with result code {rc}")
-    client.subscribe(MQTT_TOPIC_SUB)
+    if rc == 0:
+        print("connected successfully")
+        client.subscribe(MQTT_TOPIC_SUB)
+    else:
+        print(f"Connect failed with code {rc}")
+        
 def on_message(client, userdata, msg):
     print(f"Message received: {msg.payload.decode()}")
     rfid_data = msg.payload.decode()
@@ -58,7 +62,7 @@ def on_message(client, userdata, msg):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect(MQTT_SERVER, 1863, 60)
+client.connect(MQTT_SERVER, 1883, 60)
 client.loop_start()
 
 df1 = pd.DataFrame(data1)

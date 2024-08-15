@@ -12,7 +12,6 @@ import logging
 import os
 
 load_dotenv()
-
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -142,7 +141,41 @@ def delete_entry():
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error'}), 400
 
+
+@app.route('/access_check', methods=['GET'])
+def access_check():
+    rfid = request.args.get('rfid')
+    print(f"RFID received: {rfid}")
+    
+    if rfid in df.index:
+        in_df = True
+        user_info = df.loc[rfid]
+        last_used = pd.to_datetime(df.loc[rfid, 'LastUsed'])
+        permission = df.loc[rfid, 'Permission']
+        
+        if (dt.now() - last_used).days > 30 and permission != 'Owner':
+            time = False
+        else:
+            df.loc[rfid, 'LastUsed'] = dt.now()
+            df.to_csv(whitelist)  # Save the updated last used time
+            print(f"User Info: {user_info}\nCard recognized, access granted")
+            time = True
+            #df2.loc[len(df2.index)] = [rfid, df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], "Guest", df.loc[rfid, 'Host'], dt.now()]
+            df2.to_csv(overview)
+    else:
+        in_df = False
+        print("Card not recognized")
+
+    if in_df and time:
+        print("Access Granted")
+        response = "granted"
+    else:
+        print("Access Denied")
+        response = "denied"
+    
+    return jsonify(response)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug = True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
