@@ -5,7 +5,7 @@
 const char* ssid = "Myhoo";
 const char* password = "6301e89a44";
 WiFiClient client;
-const char * server = "127.0.0.1";
+const char * server = "192.168.0.106";
 int port = 5000;
 String scanner_id = "Guest";
 
@@ -34,7 +34,9 @@ void setup() {
   }
 
   Serial.println("Connected to WiFi");
-}
+  Serial.print("Arduino IP address: ");
+  Serial.println(WiFi.localIP());
+  }
 
 void loop() {
   // Look for new cards
@@ -51,9 +53,9 @@ void loop() {
       if (client.connect(server, port)) {
         Serial.println("Connected to server");
         client.print("GET /access_check?rfid=");
-        client.print(rfidUID + "&scanner=" + scanner_id + " HTTP/1.1");
-        client.println(" HTTP/1.1");
-        client.println("Host: your_server_ip");
+        client.println(rfidUID + "&scanner=" + scanner_id + " HTTP/1.1");
+        client.print("Host: " );
+        client.println(server);
         client.println("Connection: close");
         client.println();
 
