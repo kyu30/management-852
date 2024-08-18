@@ -5,11 +5,11 @@
 const char* ssid = "Myhoo";
 const char* password = "6301e89a44";
 WiFiClient client;
-//const char * server = "192.168.0.106";
-const char* server = "https://management-852-659211fd36ae.herokuapp.com";
-int port = 443;
-//int port = 5000;
-String scanner_id = "Guest";
+const char * server = "192.168.0.108";
+//const char* server = "https://management-852-659211fd36ae.herokuapp.com";
+//int port = 443;
+int port = 5000;
+const char* scanner_id = "Guest";
 
 // Define RFID pins
 #define SS_PIN 10
@@ -54,18 +54,20 @@ void loop() {
       // Send the UID to the Flask server
       if (client.connect(server, port)) {
         Serial.println("Connected to server");
-        client.print("GET /access_check?rfid=");
-        client.println(rfidUID + "&scanner=" + scanner_id + " HTTP/1.1");
-        client.print("Host: " );
-        client.println(server);
+        String url = "GET /access_check?rfid=" + String(rfidUID) + "&scanner_id=" + String(scanner_id) + " HTTP/1.1";
+        Serial.println(url);
+        client.println(url);
+        client.println("Host: " );
+        client.print(server);
         client.println("Connection: close");
         client.println();
-
+      
         // Read the response from the server
-        while (client.connected()) {
+        String response = "";
+        while (client.connected() || client.available()) {
           if (client.available()) {
-            String response = client.readStringUntil('\r');
-            Serial.println(response);
+            String response = client.readStringUntil('\n');
+            Serial.println("Response from server: "+ response);
 
             // Act on the response
             if (response.indexOf("Access Granted") >= 0) {

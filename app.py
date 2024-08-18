@@ -23,12 +23,29 @@ login_manager.login_view = 'login'
 whitelist = 'whitelist.csv'
 overview = 'overview.csv'
 df = pd.read_csv(whitelist, index_col = 'UID')    
-df2 = pd.read_csv(overview, index_col = 'UID')
+df2 = pd.read_csv(overview)
 
 class User(UserMixin, db.Model):
     id =  db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+
+class Whitelist(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    uid = db.Column(db.String(50), unique = True, nullable = False)
+    name = db.Column(db.String(100))
+    access = db.Column(db.String(20))
+    host = db.Column(db.String(50))
+    last_used = db.Column(db.DateTime, default = dt.now)
+
+class History(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    uid = db.Column(db.String(50), nullable = False)
+    name = db.Column(db.String(100))
+    access = db.Column(db.String(20))
+    host = db.Column(db.String(50))
+    last_used = db.Column(db.DateTime, default = dt.now)
+    door = db.Column(db.String(50))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -145,8 +162,8 @@ def delete_entry():
 @app.route('/access_check', methods=['GET'])
 def access_check():
     rfid = request.args.get('rfid').upper()
-    print(f"RFID received: {rfid}")
-    
+    door = request.args.get('scanner_id')
+    print(f"RFID received: {rfid}, door: {door}")
     if rfid in df.index:
         in_df = True
         user_info = df.loc[rfid]
@@ -160,7 +177,7 @@ def access_check():
             df.to_csv(whitelist)  # Save the updated last used time
             print(f"User Info: {user_info}\nCard recognized, access granted")
             time = True
-            df2.loc[len(df2.index)] = [rfid, df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], "Guest", df.loc[rfid, 'Host'], dt.now()]
+            df2.loc[len(df2.index)] = [rfid,df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], door, df.loc[rfid, 'Host'], dt.now()]
             df2.to_csv('overview.csv')
     else:
         in_df = False
@@ -173,11 +190,11 @@ def access_check():
         print("Access Denied")
         response = "denied"
     
-    return jsonify(response)
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     with app.app_context():
         db.create_all()
-    #app.run(host='192.168.0.106', port=5000)
-    app.run(host="0.0.0.0", port=port)
+    app.run(host='192.168.0.108', port=5000)
+    #app.run(host="0.0.0.0", port=port)
