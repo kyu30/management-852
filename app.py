@@ -178,4 +178,5 @@ def access_check():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='192.168.0.106', port=5000)
+    #app.run(host='192.168.0.106', port=5000)
+    app.run(host="https://management-852-659211fd36ae.herokuapp.com", port=443)

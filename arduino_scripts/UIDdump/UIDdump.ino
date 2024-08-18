@@ -5,8 +5,10 @@
 const char* ssid = "Myhoo";
 const char* password = "6301e89a44";
 WiFiClient client;
-const char * server = "192.168.0.106";
-int port = 5000;
+//const char * server = "192.168.0.106";
+const char* server = "https://management-852-659211fd36ae.herokuapp.com";
+int port = 443;
+//int port = 5000;
 String scanner_id = "Guest";
 
 // Define RFID pins
