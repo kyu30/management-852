@@ -22,8 +22,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 whitelist = 'whitelist.csv'
 overview = 'overview.csv'
-df = pd.read_csv(whitelist, index_col = 'UID')    
-df2 = pd.read_csv(overview)
+'''df = pd.read_csv(whitelist, index_col = 'UID')    
+df2 = pd.read_csv(overview)'''
 
 class User(UserMixin, db.Model):
     id =  db.Column(db.Integer, primary_key = True)
@@ -114,12 +114,35 @@ def users():
 
 @app.route('/get_whitelist', methods = ['GET'])
 def get_whitelist():
-    return jsonify(df.reset_index().to_dict(orient='records'))
+    whitelist = Whitelist.query.all()
+    data = []
+    for entry in whitelist:
+        data.append({
+            'uid': entry.uid,
+            'name': entry.name,
+            'access': entry.access,
+            'host': entry.host,
+            'last used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S')
+
+        })
+    return jsonify(data)
     
 
 @app.route('/get_overview', methods = ['GET'])
 def get_overview():
-    return jsonify(df2.reset_index().to_dict(orient='records'))
+    history = History.query.all()
+    data = []
+    for entry in history:
+        data.append({
+            'uid': entry.uid,
+            'name': entry.name,
+            'access': entry.access,
+            'host': entry.host,
+            'last used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S'),
+            'door': entry.door
+
+        })
+    return jsonify(data)
 
 @app.route('/add_entry', methods = ["POST"])
 def add_entry():
