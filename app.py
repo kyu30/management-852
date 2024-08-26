@@ -123,7 +123,19 @@ def get_overview():
 
 @app.route('/add_entry', methods = ["POST"])
 def add_entry():
-    try:
+    data = request.json
+    new = Whitelist(
+        uid = data['uid'].strip().upper(),
+        name = data['name'].strip().upper(),
+        access=data['permissions'].strip().upper(),
+        host = data['host'].strip(),
+        last_used = dt.now()
+    )
+    db.session.add(new)
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'Entry added'})
+
+    '''try:
         data = request.json
         logging.debug(f"Received data for add_entry: {data}")
         if not data:
@@ -144,41 +156,61 @@ def add_entry():
             return jsonify({'status': 'success'})
     except Exception as e:
         logging.error(f"Error adding entry: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500'''
     
 
 @app.route('/delete_entry', methods=['POST'])
 def delete_entry():
     data = request.json
-    uid = data.get('uid', '').strip().upper()
+    userid = data.get('uid', '').strip().upper()
+    entry = Whitelist.query.filter_by(uid=userid).first()
+    if entry:
+        db.session.delete(entry)
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'Entry Deleted'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Entry not found'})
 
-    if uid in df.index:
+    '''if uid in df.index:
         df.drop(uid, inplace = True)
         df.to_csv(whitelist)
         return jsonify({'status': 'success'})
-    return jsonify({'status': 'error'}), 400
+    return jsonify({'status': 'error'}), 400'''
 
 
 @app.route('/access_check', methods=['GET'])
 def access_check():
     rfid = request.args.get('rfid').upper()
     door = request.args.get('scanner_id')
+    entry = Whitelist.query.filter_by(uid = rfid).first()
+    
     print(f"RFID received: {rfid}, door: {door}")
-    if rfid in df.index:
+    if entry:
         in_df = True
-        user_info = df.loc[rfid]
-        last_used = pd.to_datetime(df.loc[rfid, 'LastUsed'])
-        permission = df.loc[rfid, 'Permission']
-        
-        if (dt.now() - last_used).days > 30 and permission != 'Owner':
+        #user_info = df.loc[rfid]
+        #last_used = pd.to_datetime(df.loc[rfid, 'LastUsed'])
+        #permission = df.loc[rfid, 'Permission']
+
+        if (dt.now() - entry.last_used).days > 30 and entry.permission != 'Owner':
             time = False
         else:
-            df.loc[rfid, 'LastUsed'] = dt.now()
-            df.to_csv(whitelist)  # Save the updated last used time
-            print(f"User Info: {user_info}\nCard recognized, access granted")
+            '''df.loc[rfid, 'LastUsed'] = dt.now()
+            df.to_csv(whitelist)  # Save the updated last used time'''
+            print(f"User Info: {entry.name}\nCard recognized, access granted")
             time = True
-            df2.loc[len(df2.index)] = [rfid,df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], door, df.loc[rfid, 'Host'], dt.now()]
-            df2.to_csv('overview.csv')
+            entry2 = History(
+                uid = entry.uid,
+                name = entry.name,
+                access = entry.access,
+                host = entry.host,
+                last_used = dt.now(),
+                door = door
+            )
+            entry.last_used = dt.now()
+            '''df2.loc[len(df2.index)] = [rfid,df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], door, df.loc[rfid, 'Host'], dt.now()]
+            df2.to_csv('overview.csv')'''
+            db.session.add(entry2)
+            db.session.commit()
     else:
         in_df = False
         print("Card not recognized")
@@ -196,5 +228,5 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     with app.app_context():
         db.create_all()
-    app.run(host='192.168.0.108', port=5000)
+    app.run(host='192.168.0.110', port=5000) #use wifi ip for local testing
     #app.run(host="0.0.0.0", port=port)
