@@ -54,12 +54,12 @@ function fetchWhitelist(){
             if (ufilter === 'all' || entry.User === ufilter){
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${entry.UID}</td>
-                    <td>${entry.User}</td>
-                    <td>${entry.Permission}</td>
-                    <td>${entry.Door}</td>
-                    <td>${entry.Host}</td>
-                    <td>${entry.Time}</td>
+                    <td>${entry.uid}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.access}</td>
+                    <td>${entry.host}</td>
+                    <td>${entry.last_used}</td>
+                    <td>${entry.door}</td>
                     `;
                     whitelist.appendChild(row);
             }
