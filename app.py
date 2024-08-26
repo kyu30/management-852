@@ -122,7 +122,7 @@ def get_whitelist():
             'name': entry.name,
             'access': entry.access,
             'host': entry.host,
-            'last used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S')
+            'last_used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S')
 
         })
     return jsonify(data)
@@ -138,7 +138,7 @@ def get_overview():
             'name': entry.name,
             'access': entry.access,
             'host': entry.host,
-            'last used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S'),
+            'last_used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S'),
             'door': entry.door
 
         })
