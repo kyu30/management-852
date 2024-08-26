@@ -16,16 +16,17 @@ function fetchWhitelist(){
     .then(response => response.json())
     .then(data => {
         console.log("whitelist received");
+        console.log(data)
         const whitelist = document.getElementById('whitelist');
         whitelist.innerHTML = '';
         data.forEach(entry => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${entry.UID}</td>
-                <td>${entry.User}</td>
-                <td>${entry.Permission}</td>
-                <td>${entry.Host}</td>
-                <td>${entry.LastUsed}</td>
+                <td>${entry.uid}</td>
+                <td>${entry.name}</td>
+                <td>${entry.access}</td>
+                <td>${entry.host}</td>
+                <td>${entry.last_used}</td>
                 <td><button onclick = "deleteEntry('${entry.UID}')">Delete</button></td>
                 `;
                 whitelist.appendChild(row);
