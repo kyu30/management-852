@@ -8,7 +8,7 @@ const char* ssid = "Cubico.co";
 const char* password = "cubico123";
 WiFiClient client;
 const char * server = "172.16.103.109";
-//const char* server = "https://management-852-659211fd36ae.herokuapp.com";
+//const char* server = "https://management-852-40069d69dc54.herokuapp.com";
 //int port = 443;
 int port = 5000;
 const char* scanner_id = "Guest";
