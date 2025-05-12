@@ -68,6 +68,7 @@ function deleteEntry(uid){
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data.status)
         if (data.status === 'success') {
             fetchWhitelist();
         } else {
