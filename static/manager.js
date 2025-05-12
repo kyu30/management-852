@@ -59,6 +59,7 @@ function addEntry(uid, name, permissions, host){
 }
 
 function deleteEntry(uid){
+    console.log(uid)
     fetch('/delete_entry', {
         method: 'POST',
         headers: {
