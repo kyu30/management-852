@@ -186,8 +186,8 @@ def add_entry():
 
 @app.route('/delete_entry', methods=['POST']) #Lets a host (maybe just Keith) delete a user
 def delete_entry():
-    data = request.json
-    userid = data.get('uid', '').strip().upper()
+    data = request.get_json()
+    userid = data.get('uid').strip().upper()
     entry = Whitelist.query.filter_by(uid=userid).first()
     if entry:
         db.session.delete(entry)
