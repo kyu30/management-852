@@ -32,26 +32,22 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function fetchWhitelist(){
-    const ufilter = document.getElementById('user_filter').value;
+    const filterDropdown = document.getElementById('user_filter');
+    const ufilter = filterDropdown.value;
     console.log("Fetching whitelist");
     fetch('/get_overview')
     .then(response => response.json())
     .then(data => {
         console.log("whitelist received");
-        data.sort((a, b) => {
-            return a['Time'] < b['Time'] ? 1 : -1;
-    });
-        const filterDropdown = document.getElementById('user_filter');
-        const users = [...new Set(data.map(entry => entry.User))];
+        data.sort((a, b) => new Date(b.Time) - new Date(a.Time));
+
+        const users = [...new Set(data.map(entry => entry.name))];
         
-        filterDropdown.innerHTML = '<option value = "all">All</option>';
-        users.forEach(user => {
-            filterDropdown.innerHTML += `<option value="${user}">${user}</option>`;
-        });
+        filterDropdown.innerHTML = `<option value="all">All</option>` + users.map(user => `<option value="${user}">${user}</option>`).join('');
         const whitelist = document.getElementById('overview');
         whitelist.innerHTML = '';
         data.forEach(entry => {
-            if (ufilter === 'all' || entry.User === ufilter){
+            if (ufilter === 'all' || entry.name === ufilter){
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${entry.uid}</td>

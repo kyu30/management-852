@@ -1,11 +1,13 @@
+//#include <WiFiNINA.h>
+
 #include <WiFiS3.h>
 #include <SPI.h>
 #include <MFRC522.h>
 
-const char* ssid = "Myhoo";
-const char* password = "6301e89a44";
+const char* ssid = "Cubico.co";
+const char* password = "cubico123";
 WiFiClient client;
-const char * server = "192.168.0.108";
+const char * server = "172.16.103.109";
 //const char* server = "https://management-852-659211fd36ae.herokuapp.com";
 //int port = 443;
 int port = 5000;
@@ -72,10 +74,10 @@ void loop() {
             // Act on the response
             if (response.indexOf("Access Granted") >= 0) {
               Serial.println("Door Unlocked");
-              // Add your code to unlock the door here
+              // Add code to unlock the door here
             } else if (response.indexOf("Access Denied") >= 0) {
               Serial.println("Door Locked");
-              // Add your code to keep the door locked here
+              // Add code to keep the door locked here
             }
           }
         }

@@ -25,12 +25,12 @@ overview = 'overview.csv'
 '''df = pd.read_csv(whitelist, index_col = 'UID')    
 df2 = pd.read_csv(overview)'''
 
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model): #manager login database
     id =  db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
 
-class Whitelist(db.Model):
+class Whitelist(db.Model): #whitelist database (stores name, card id, access level, host, last use)
     id = db.Column(db.Integer, primary_key = True)
     uid = db.Column(db.String(50), unique = True, nullable = False)
     name = db.Column(db.String(100))
@@ -38,7 +38,7 @@ class Whitelist(db.Model):
     host = db.Column(db.String(50))
     last_used = db.Column(db.DateTime, default = dt.now)
 
-class History(db.Model):
+class History(db.Model): #access history database (whitelist info + when it was used, which door was used)
     id = db.Column(db.Integer, primary_key = True)
     uid = db.Column(db.String(50), nullable = False)
     name = db.Column(db.String(100))
@@ -47,12 +47,12 @@ class History(db.Model):
     last_used = db.Column(db.DateTime, default = dt.now)
     door = db.Column(db.String(50))
 
-@login_manager.user_loader
+@login_manager.user_loader #login to user dashboard
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST']) #login form
 def home():
     login_form = LoginForm()
     register_form = RegisterForm()
@@ -81,6 +81,7 @@ def home():
 
     return render_template('home.html', login_form=login_form, register_form=register_form)
 
+# This section just loads the pages 
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -112,7 +113,8 @@ def rooms():
 def users():
     return render_template("users.html")
 
-@app.route('/get_whitelist', methods = ['GET'])
+#This section just loads the tables
+@app.route('/get_whitelist', methods = ['GET']) 
 def get_whitelist():
     whitelist = Whitelist.query.all()
     data = []
@@ -144,7 +146,7 @@ def get_overview():
         })
     return jsonify(data)
 
-@app.route('/add_entry', methods = ["POST"])
+@app.route('/add_entry', methods = ["POST"]) #Lets a host add a user into the table
 def add_entry():
     data = request.json
     new = Whitelist(
@@ -182,7 +184,7 @@ def add_entry():
         return jsonify({'status': 'error', 'message': str(e)}), 500'''
     
 
-@app.route('/delete_entry', methods=['POST'])
+@app.route('/delete_entry', methods=['POST']) #Lets a host (maybe just Keith) delete a user
 def delete_entry():
     data = request.json
     userid = data.get('uid', '').strip().upper()
@@ -201,10 +203,10 @@ def delete_entry():
     return jsonify({'status': 'error'}), 400'''
 
 
-@app.route('/access_check', methods=['GET'])
+@app.route('/access_check', methods=['GET'])  #RFID checking logic, NEED TO ADD DOOR PERMISSION LOGIc
 def access_check():
-    rfid = request.args.get('rfid').upper()
-    door = request.args.get('scanner_id')
+    rfid = request.args.get('rfid').upper() #pulls RFID info
+    door = request.args.get('scanner_id') #identifies which door is being used
     entry = Whitelist.query.filter_by(uid = rfid).first()
     
     print(f"RFID received: {rfid}, door: {door}")
@@ -251,5 +253,5 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     with app.app_context():
         db.create_all()
-    app.run(host='192.168.0.110', port=5000) #use wifi ip for local testing
-    #app.run(host="0.0.0.0", port=port)
+    #app.run(host='172.16.103.109', port=5000) #use wifi ip for local testing
+    app.run(host="0.0.0.0", port=port)

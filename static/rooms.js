@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', function(){
             const name = document.getElementById('name').value;
             const permissions = document.getElementById('permission').value;
             const door = document.getElementById('door').value;
-            const host = document.getElementById('host').value;
             const time = document.getElementById('time').value;
-            addEntry(uid, name, permissions, host);
+            const host = document.getElementById('host').value;
+            addEntry(uid, name, permissions, door, time, host);
         })
     } else{
         console.log('Add form not found');
@@ -32,34 +32,30 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function fetchWhitelist(){
-    const ufilter = document.getElementById('room_filter').value;
+    const filterDropdown = document.getElementById('room_filter')
+    const ufilter = filterDropdown.value
     console.log("Fetching whitelist");
     fetch('/get_overview')
     .then(response => response.json())
     .then(data => {
-        console.log("whitelist received");
-        data.sort((a, b) => {
-                return a['Time'] < b['Time'] ? 1 : -1;
-        });
-        const filterDropdown = document.getElementById('room_filter');
-        const doors = [...new Set(data.map(entry => entry.Door))];
-        
-        filterDropdown.innerHTML = '<option value = "all">All</option>';
-        doors.forEach(door => {
-            filterDropdown.innerHTML += `<option value="${door}">${door}</option>`;
-        });
+        console.log("whitelist received: ", data);
+        data.sort((a, b) => new Date(b.Time) - new Date(a.Time));
+
+        const doors = [...new Set(data.map(entry => entry.door))];
+
+        filterDropdown.innerHTML = `<option value="all">All</option>` + doors.map(door => `<option value="${door}">${door}</option>`).join('');
         const whitelist = document.getElementById('overview');
         whitelist.innerHTML = '';
         data.forEach(entry => {
-            if (ufilter === 'all' || entry.Door === ufilter){
+            if (ufilter === 'all' || entry.door === ufilter){
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${entry.uid}</td>
                     <td>${entry.name}</td>
                     <td>${entry.access}</td>
-                    <td>${entry.host}</td>
-                    <td>${entry.last_used}</td>
                     <td>${entry.door}</td>
+                    <td>${entry.last_used}</td>
+                    <td>${entry.host}</td>
                     `;
                     whitelist.appendChild(row);
             }

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const uid = document.getElementById('uid').value;
         const name = document.getElementById('name').value;
         const permissions = document.getElementById('permission').value;
-        const host = document.getElementsByName('host').value;
+        const host = document.getElementById('host').value;
         addEntry(uid, name, permissions, host);
     });
 });
@@ -41,7 +41,7 @@ function addEntry(uid, name, permissions, host){
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ uid, name, permissions })
+        body: JSON.stringify({ uid, name, permissions, host })
     })
     .then(response => {
         console.log('Add entry response status:', response.status);
