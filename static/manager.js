@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const name = document.getElementById('name').value;
         const permissions = document.getElementById('permission').value;
         const host = document.getElementById('host').value;
+        const image = document.getElementById('image').value;
         addEntry(uid, name, permissions, host);
     });
 });
@@ -27,6 +28,7 @@ function fetchWhitelist(){
                 <td>${entry.access}</td>
                 <td>${entry.host}</td>
                 <td>${entry.last_used}</td>
+                <td><img src="${user.image}" alt="User Image" width="60"></td>
                 <td><button onclick = "deleteEntry('${entry.uid}')">Delete</button></td>
                 `;
                 whitelist.appendChild(row);

@@ -10,6 +10,7 @@ import pandas as pd
 import secrets
 import logging
 import os
+import sqlite3
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
@@ -37,6 +38,7 @@ class Whitelist(db.Model): #whitelist database (stores name, card id, access lev
     access = db.Column(db.String(20))
     host = db.Column(db.String(50))
     last_used = db.Column(db.DateTime, default = dt.now)
+    image = db.Column(db.String(100))
 
 class History(db.Model): #access history database (whitelist info + when it was used, which door was used)
     id = db.Column(db.Integer, primary_key = True)
@@ -124,7 +126,8 @@ def get_whitelist():
             'name': entry.name,
             'access': entry.access,
             'host': entry.host,
-            'last_used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S')
+            'last_used': entry.last_used.strftime('%Y-%m-%d %H:%M:%S'),
+            'image': entry.image
 
         })
     return jsonify(data)
@@ -159,30 +162,6 @@ def add_entry():
     db.session.add(new)
     db.session.commit()
     return jsonify({'status': 'success', 'message': 'Entry added'})
-
-    '''try:
-        data = request.json
-        logging.debug(f"Received data for add_entry: {data}")
-        if not data:
-            logging.debug(f"Received data for add_entry: {data}")
-        uid = data.get("uid", '').strip().upper()
-        name = data.get("name", '').strip()
-        access = data.get("permissions", '').strip()
-        host = data.get("host", 'host').strip()
-        time = dt.now()
-        if not uid or not name or not access or not time or not host:
-                logging.error(f"Invalid data received: {data}")
-                return jsonify({'status': 'error', 'message': 'Invalid data received'}), 400
-        else:
-            df.loc[uid] = [access, name, host, time]
-            print(df)
-            df.to_csv(whitelist)
-            logging.debug(f"Added entry: {uid}, {name}, {access},{host},{time}")
-            return jsonify({'status': 'success'})
-    except Exception as e:
-        logging.error(f"Error adding entry: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500'''
-    
 
 @app.route('/delete_entry', methods=['POST']) #Lets a host (maybe just Keith) delete a user
 def delete_entry():
@@ -248,6 +227,16 @@ def access_check():
         response = "denied"
     
     return response
+
+@app.route('image_render')
+def get_images():
+    conn = sqlite3.connect('whitelist.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT image_path FROM image")
+    rows = cursor.fetchall()
+    conn.close()
+    image_paths = [row[0] for row in rows]
+    return jsonify(image_paths)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
