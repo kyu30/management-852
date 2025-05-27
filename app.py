@@ -228,7 +228,7 @@ def access_check():
     
     return response
 
-@app.route('image_render')
+@app.route('/image_render')
 def get_images():
     conn = sqlite3.connect('whitelist.db')
     cursor = conn.cursor()
