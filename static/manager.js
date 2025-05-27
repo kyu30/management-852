@@ -28,12 +28,13 @@ function fetchWhitelist(){
                 <td>${entry.access}</td>
                 <td>${entry.host}</td>
                 <td>${entry.last_used}</td>
-                <td><img src="/static/images/shahid.png" alt="User Image" width="60"></td>
+                <td><img src="${entry.image}" alt="User Image" width="60"></td>
                 <td><button onclick = "deleteEntry('${entry.uid}')">Delete</button></td>
                 `;
                 whitelist.appendChild(row);
         });
     }).catch(error => console.error('Error fetching whitelist: ', error));
+    console.log(entry.image)
 }
 
 function addEntry(uid, name, permissions, host){
