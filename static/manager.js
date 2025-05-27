@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function fetchWhitelist(){
+    console.log(entry.image)
     fetch('/get_whitelist')
     .then(response => response.json())
     .then(data => {
