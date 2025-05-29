@@ -57,7 +57,7 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST']) #login form
 def home():
     login_form = LoginForm()
-    register_form = RegisterForm()
+    
 
     if login_form.submit.data and login_form.validate_on_submit():
         user = User.query.filter_by(username=login_form.username.data).first()
@@ -70,18 +70,8 @@ def home():
             return redirect(url_for('dashboard'))
         flash('Invalid username or password')
 
-    if register_form.submit.data and register_form.validate_on_submit():
-        user = User.query.filter_by(username = register_form.username.data).first()
-        if user:
-            flash('Username already exists', 'error')
-        else:
-            hashed_password = generate_password_hash(register_form.password.data)
-            new_user = User(username=register_form.username.data, password=hashed_password)
-            db.session.add(new_user)
-            db.session.commit()
-            return redirect(url_for('home'))
 
-    return render_template('home.html', login_form=login_form, register_form=register_form)
+    return render_template('home.html', login_form=login_form)
 
 # This section just loads the pages 
 @app.route('/dashboard')

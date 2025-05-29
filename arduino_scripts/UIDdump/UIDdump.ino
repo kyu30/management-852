@@ -1,91 +1,103 @@
-//#include <WiFiNINA.h>
-
 #include <WiFiS3.h>
 #include <SPI.h>
 #include <MFRC522.h>
 
+// WiFi credentials (Need 2.4 ghz WiFi, won't work with 5 ghz, have to set up w/ ISP)
 const char* ssid = "Cubico.co";
 const char* password = "cubico123";
-WiFiClient client;
-//const char * server = "172.16.103.109";
-const char* server = "https://management-852-40069d69dc54.herokuapp.com";
+
+// HTTPS server info
+const char* server = "management-852-40069d69dc54.herokuapp.com";
 int port = 443;
-//int port = 5000;
 const char* scanner_id = "Guest";
 
-// Define RFID pins
+// RFID setup
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 rfid(SS_PIN, RST_PIN);
 
+// Use SSL client for HTTPS
+WiFiSSLClient client;
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); // Indicator that setup started
   Serial.begin(9600);
-  while (!Serial);
+  delay(1000);
+  Serial.println("Booting...");
 
-  // Setup RFID
+  // Init RFID
   SPI.begin();
   rfid.PCD_Init();
+  Serial.println("RFID initialized");
 
   // Connect to WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+  int retryCount = 0;
+  while (WiFi.status() != WL_CONNECTED && retryCount < 20) {
+    delay(500);
     Serial.print(".");
+    retryCount++;
   }
 
-  Serial.println("Connected to WiFi");
-  Serial.print("Arduino IP address: ");
-  Serial.println(WiFi.localIP());
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nConnected to WiFi");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed");
   }
+
+  digitalWrite(LED_BUILTIN, LOW); // Turn off setup indicator
+}
 
 void loop() {
-  // Look for new cards
-  if (rfid.PICC_IsNewCardPresent()) {
-    // Select one of the cards
-    if (rfid.PICC_ReadCardSerial()) {
-      String rfidUID = "";
-      for (byte i = 0; i < rfid.uid.size; i++) {
-        rfidUID += String(rfid.uid.uidByte[i], HEX);
-      }
-      Serial.println(rfidUID); // Print UID to Serial Monitor
+  if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
+    // Build UID string
+    String rfidUID = "";
+    for (byte i = 0; i < rfid.uid.size; i++) {
+      rfidUID += String(rfid.uid.uidByte[i], HEX);
+    }
 
-      // Send the UID to the Flask server
-      if (client.connect(server, port)) {
-        Serial.println("Connected to server");
-        String url = "GET /access_check?rfid=" + String(rfidUID) + "&scanner_id=" + String(scanner_id) + " HTTP/1.1";
-        Serial.println(url);
-        client.println(url);
-        client.println("Host: " );
-        client.print(server);
-        client.println("Connection: close");
-        client.println();
-      
-        // Read the response from the server
-        String response = "";
-        while (client.connected() || client.available()) {
-          if (client.available()) {
-            String response = client.readStringUntil('\n');
-            Serial.println("Response from server: "+ response);
+    Serial.print("Scanned UID: ");
+    Serial.println(rfidUID);
 
-            // Act on the response
-            if (response.indexOf("Access Granted") >= 0) {
-              Serial.println("Door Unlocked");
-              // Add code to unlock the door here
-            } else if (response.indexOf("Access Denied") >= 0) {
-              Serial.println("Door Locked");
-              // Add code to keep the door locked here
-            }
+    // Connect to HTTPS server
+    if (client.connect(server, port)) {
+      Serial.println("Connected to server");
+
+      // Construct GET request
+      String request = "GET /access_check?rfid=" + rfidUID + "&scanner_id=" + scanner_id + " HTTP/1.1";
+      client.println(request);
+      client.print("Host: ");
+      client.println(server);
+      client.println("Connection: close");
+      client.println();
+
+      // Read server response
+      while (client.connected() || client.available()) {
+        if (client.available()) {
+          String line = client.readStringUntil('\n');
+          Serial.println("Server: " + line);
+
+          if (line.indexOf("Access Granted") >= 0) {
+            Serial.println("Door Unlocked");
+            // Unlock door logic here
+          } else if (line.indexOf("Access Denied") >= 0) {
+            Serial.println("Door Locked");
+            // Keep door locked logic here
           }
         }
-
-        client.stop();
       }
 
-      delay(2000); // Prevent multiple reads
+      client.stop();
+    } else {
+      Serial.println("Failed to connect to server");
     }
+
+    delay(2000); // Debounce
   }
 }
