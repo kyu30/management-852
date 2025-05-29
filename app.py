@@ -27,6 +27,7 @@ overview = 'overview.csv'
 df2 = pd.read_csv(overview)'''
 
 class User(UserMixin, db.Model): #manager login database
+    __tablename__ = 'user'
     id =  db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
@@ -57,7 +58,6 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST']) #login form
 def home():
     login_form = LoginForm()
-    
 
     if login_form.submit.data and login_form.validate_on_submit():
         user = User.query.filter_by(username=login_form.username.data).first()
