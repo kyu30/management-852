@@ -12,8 +12,7 @@ import logging
 import os
 import sqlite3
 import serial 
-#from arduino_scripts import rfid
-import paho.mqtt.client as mqtt
+
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
@@ -24,12 +23,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-MQTT_SERVER = "localhost"
-MQTT_TOPIC_SUB = "rfid/scan"
-MQTT_TOPIC_PUB = "door/control"
-mqtt_client = mqtt.Client()
-mqtt_client.connect(MQTT_SERVER,1883, 60)
-mqtt_client.loop_start()
 
 whitelist = 'whitelist.csv'
 overview = 'overview.csv'
@@ -187,8 +180,6 @@ def access_check():
     entry = Whitelist.query.filter_by(uid=rfid).first()
     if entry:
         if (dt.now() - entry.last_used).days <= 30 or entry.access == "Owner":
-            print(f"Publishing message to MQTT: {door}-{rfid}")
-            mqtt_client.publish(MQTT_TOPIC_PUB, f"{door}-{rfid}")
             return jsonify({"status": "Access Granted"})
         else:
             return jsonify({"status": "Access Denied"})
