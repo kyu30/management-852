@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overrides</title>
+</head>
+<body>
+    <h2>Door Control</h2>
+    <select id="lockSelector">
+        <option value="Guest">Guest</option>
+        <option value="Office">Office</option>
+        <option value = "Inventory">Inventory</option>
+    </select>
+    <button id="lockButton">Lock Door</button>
+    <button id="unlockButton">Unlock Door</button>
+
+    <script>
+        document.getElementById("lockButton").onclick = function() {
+            const selectedBoard = document.getElementById("lockSelector").value;
+            fetch(`/control?door=lock&board=${selectedBoard}`)
+            .then(response => response.json())
+            .then(data => console.log(data));
+        };
+
+        document.getElementById("unlockButton").onclick = function() {
+            const selectedBoard = document.getElementById("lockSelector").value;
+            fetch(`/control?door=unlock&board=${selectedBoard}`)
+            .then(response => response.json())
+            .then(data => console.log(data));
+        };
+    </script>
+</body>
+</html>

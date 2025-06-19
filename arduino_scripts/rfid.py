@@ -5,10 +5,13 @@ import pandas as pd
 from datetime import datetime as dt
 from datetime import time, date, timedelta
 import paho.mqtt.client as mqtt
+import requests
 
+ser = serial.Serial('COM8', 115200)
 MQTT_SERVER = "localhost"
 MQTT_TOPIC_SUB = "rfid/scan"
 MQTT_TOPIC_PUB = "door/control"
+
 
 data1 = {
     "UID": ["84 B8 C8 72"],
@@ -27,7 +30,7 @@ data2 = {
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("connected successfully")
+        print("MQTT connected successfully")
         client.subscribe(MQTT_TOPIC_SUB)
     else:
         print(f"Connect failed with code {rc}")
@@ -36,34 +39,27 @@ def on_message(client, userdata, msg):
     print(f"Message received: {msg.payload.decode()}")
     rfid_data = msg.payload.decode()
     print(f"UID: {rfid_data}")
-    client_id, uid = rfid_data.split('-')
-    if uid in df.index():
-        in_df = True #This variable stores whether or not the UID is in the dataframe or not (True/False)
-        user_info = df.loc[id] #Stores all the information associated with the UID in the user_info variable
-        if ((dt.now() - df.loc[id, 'LastUsed']).days > 30 and df.loc['Permission'].upper() != 'OWNER'): #Checks if the last time the card was used was within a month ago
-            print("Card expired") #Card is expired if the last time the card was used was more than a month (30 days) ago
-            time = False #This variable stores whether or not the card expired
+    door, uid = rfid_data.split('-')
+
+    response = requests.get(f"http://192.168.0.104:5000/access_check?rfid={uid}&scanner_id={door}")
+    if response.status_code == 200:
+        response_data = response.json()
+        print(f"Response from Flask: {response_data['status']}")
+        if response_data['status'] == 'granted':
+            print("Access Granted")
+            client.publish(MQTT_TOPIC_PUB, "open")
         else:
-            df.loc[id, "LastUsed"] = dt.now() #Sets the new LastUsed to now, saves all new information/overwrites existing info into a csv/spreadsheet
-            df.to_csv('whitelist.csv')
-            print(user_info.to_string() + "\nCard recognized, access granted") #Writes message to user
-            time = True
-            df1.loc[len(df1.index)] = [id, df.loc[id, 'User'], df.loc[id, 'Permission'], dt.now()]
-            df1.to_csv('overview.csv')
+            print("Access Denied")
+            client.publish(MQTT_TOPIC_PUB, "lock")
     else:
-        in_df = False
-        print("Card not recognized")
-    if (in_df == True) and (time == True):
-        print("Access Granted")
-        client.publish(MQTT_TOPIC_PUB, 'open')
-    else:
-        print("Acess Denied")
-    
+        print("Error in communication with Flask server")
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
+
 client.connect(MQTT_SERVER, 1883, 60)
 client.loop_start()
+
 
 df1 = pd.DataFrame(data1)
 df = pd.DataFrame(data2) #Creates a dataframe using the example csv
@@ -76,9 +72,8 @@ try:
 except KeyboardInterrupt:
     client.loop.stop()
     client.disconnect()
-'''def card_check(df): #use to control access
+def card_check(df): #use to control access
     print("Tap Card")
-    ser = serial.Serial('COM6', 9600) #Links to the arduino program's Serial Monitor (info recorded by the Arduino)
     #time.sleep(2)
     try:
         while True:
@@ -88,6 +83,8 @@ except KeyboardInterrupt:
                     if "UID" in line: #Runs below code if "UID" is in the Serial Monitor output
                         id = str(line.split(": ")[1]).strip().upper() #Takes the second half of the output (the UID of the RFID card)
                         if id in df.index: #Runs below code if the UID is in the given dataframe
+                            if df.loc[id, "Permission"] == "Owner":
+                                ser.write(b"ACCESS GRANTED\n")
                             in_df = True #This variable stores whether or not the UID is in the dataframe or not (True/False)
                             user_info = df.loc[id] #Stores all the information associated with the UID in the user_info variable
                             if ((dt.now() - df.loc[id, 'LastUsed']).days > 30 and df.loc['Permission'] != 'Owner'): #Checks if the last time the card was used was within a month ago
@@ -120,7 +117,7 @@ except KeyboardInterrupt:
 
 def add_update(df): #Use for adding cards
     print("Tap card")
-    ser = serial.Serial('COM4', 9600)
+    ser = serial.Serial('COM6', 9600)
     try:
         while True:
             try:
@@ -173,10 +170,28 @@ def add_update(df): #Use for adding cards
         print("Exiting Program")
         ser.close()
 
+def lock_door():
+    print("Locking door")
+    ser.write(b'Lock')
 
+def unlock_door():
+    print("Unlocking door")
+    ser.write(b'Unlock')
 
-#Used these to call functions and test them
-#card_check(df)
-#add_update(df)
+def check_access(rfid, door):
+    url = f"https://management-852-40069d69dc54.herokuapp.com/access_check?rfid={rfid}&scanner_id=door"
+    response = requests.get(url)
+    if response.text == 'granted':
+        print("Access Granted")
+        unlock_door()
+    else:
+        print("Access Denied")
+        lock_door()
 
-'''
+def card_check():
+    while True:
+        rfid = 'some_uid'
+        door = 'Guest'
+        check_access(rfid, door)
+
+ser.close()

@@ -11,6 +11,9 @@ import secrets
 import logging
 import os
 import sqlite3
+import serial 
+#from arduino_scripts import rfid
+import paho.mqtt.client as mqtt
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
@@ -21,10 +24,18 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+MQTT_SERVER = "localhost"
+MQTT_TOPIC_SUB = "rfid/scan"
+MQTT_TOPIC_PUB = "door/control"
+mqtt_client = mqtt.Client()
+mqtt_client.connect(MQTT_SERVER,1883, 60)
+mqtt_client.loop_start()
+
 whitelist = 'whitelist.csv'
 overview = 'overview.csv'
 '''df = pd.read_csv(whitelist, index_col = 'UID')    
 df2 = pd.read_csv(overview)'''
+
 
 class User(UserMixin, db.Model): #manager login database
     __tablename__ = 'user'
@@ -49,6 +60,9 @@ class History(db.Model): #access history database (whitelist info + when it was 
     host = db.Column(db.String(50))
     last_used = db.Column(db.DateTime, default = dt.now)
     door = db.Column(db.String(50))
+
+with app.app_context():
+    db.create_all
 
 @login_manager.user_loader #login to user dashboard
 def load_user(user_id):
@@ -153,7 +167,7 @@ def add_entry():
     db.session.commit()
     return jsonify({'status': 'success', 'message': 'Entry added'})
 
-@app.route('/delete_entry', methods=['POST']) #Lets a host (maybe just Keith) delete a user
+@app.route('/delete_entry', methods=['POST']) #Lets a host delete a user
 def delete_entry():
     data = request.get_json()
     userid = data.get('uid').strip().upper()
@@ -165,58 +179,27 @@ def delete_entry():
     else:
         return jsonify({'status': 'error', 'message': 'Entry not found'})
 
-    '''if uid in df.index:
-        df.drop(uid, inplace = True)
-        df.to_csv(whitelist)
-        return jsonify({'status': 'success'})
-    return jsonify({'status': 'error'}), 400'''
-
 
 @app.route('/access_check', methods=['GET'])  #RFID checking logic, NEED TO ADD DOOR PERMISSION LOGIc
 def access_check():
     rfid = request.args.get('rfid').upper() #pulls RFID info
     door = request.args.get('scanner_id') #identifies which door is being used
-    entry = Whitelist.query.filter_by(uid = rfid).first()
-    
-    print(f"RFID received: {rfid}, door: {door}")
+    entry = Whitelist.query.filter_by(uid=rfid).first()
     if entry:
-        in_df = True
-        #user_info = df.loc[rfid]
-        #last_used = pd.to_datetime(df.loc[rfid, 'LastUsed'])
-        #permission = df.loc[rfid, 'Permission']
-
-        if (dt.now() - entry.last_used).days > 30 and entry.permission != 'Owner':
-            time = False
+        if (dt.now() - entry.last_used).days <= 30 or entry.access == "Owner":
+            print(f"Publishing message to MQTT: {door}-{rfid}")
+            mqtt_client.publish(MQTT_TOPIC_PUB, f"{door}-{rfid}")
+            return jsonify({"status": "Access Granted"})
         else:
-            '''df.loc[rfid, 'LastUsed'] = dt.now()
-            df.to_csv(whitelist)  # Save the updated last used time'''
-            print(f"User Info: {entry.name}\nCard recognized, access granted")
-            time = True
-            entry2 = History(
-                uid = entry.uid,
-                name = entry.name,
-                access = entry.access,
-                host = entry.host,
-                last_used = dt.now(),
-                door = door
-            )
-            entry.last_used = dt.now()
-            '''df2.loc[len(df2.index)] = [rfid,df.loc[rfid, 'User'], df.loc[rfid, 'Permission'], door, df.loc[rfid, 'Host'], dt.now()]
-            df2.to_csv('overview.csv')'''
-            db.session.add(entry2)
-            db.session.commit()
+            return jsonify({"status": "Access Denied"})
     else:
-        in_df = False
-        print("Card not recognized")
+        return jsonify({"status": "Card not recognized"})
 
-    if in_df and time:
-        print("Access Granted")
-        response = "granted"
-    else:
-        print("Access Denied")
-        response = "denied"
-    
-    return response
+@app.route("/scan", methods = ["POST"])
+def scan():
+    data = request.get_json()
+    print("UID Received", data)
+    return "Received", 200
 
 @app.route('/image_render')
 def get_images():
@@ -232,5 +215,5 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     with app.app_context():
         db.create_all()
-    #app.run(host='172.16.103.109', port=5000) #use wifi ip for local testing
+    #app.run(host='192.168.0.104', port=5000) #use wifi ip for local testing
     app.run(host="0.0.0.0", port=port)
