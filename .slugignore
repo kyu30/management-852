@@ -1,0 +1,9 @@
+*.csv
+*.db
+*.log
+*.png
+*.jpg
+nltk_data/
+tests/
+docs/
+__pycache__/
