@@ -1,9 +1,13 @@
 *.csv
 *.db
+*.zip
+*.tar.gz
 *.log
-*.png
-*.jpg
 nltk_data/
+data/
+__pycache__/
+*.pyc
+venv/
+env/
 tests/
 docs/
-__pycache__/
