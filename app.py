@@ -37,8 +37,8 @@ df2 = pd.read_csv(overview)'''
 class User(UserMixin, db.Model): #manager login database
     __tablename__ = 'user'
     id =  db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
+    username = db.Column(db.Text, unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)
 
 class Whitelist(db.Model): #whitelist database (stores name, card id, access level, host, last use)
     id = db.Column(db.Integer, primary_key = True)
