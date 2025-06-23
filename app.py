@@ -11,7 +11,6 @@ import secrets
 import logging
 import os
 import sqlite3
-import serial 
 
 
 load_dotenv()
@@ -32,7 +31,8 @@ whitelist = 'whitelist.csv'
 overview = 'overview.csv'
 '''df = pd.read_csv(whitelist, index_col = 'UID')    
 df2 = pd.read_csv(overview)'''
-
+from flask_migrate import Migrate
+migrate = Migrate(app,db)
 
 class User(UserMixin, db.Model): #manager login database
     __tablename__ = 'user'
