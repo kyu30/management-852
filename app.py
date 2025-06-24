@@ -6,8 +6,6 @@ from forms import LoginForm, RegisterForm
 from dotenv import load_dotenv
 from datetime import datetime as dt
 from datetime import time, date, timedelta
-import pandas as pd
-import secrets
 import logging
 import os
 import sqlite3
@@ -29,8 +27,6 @@ login_manager.login_view = 'login'
 
 whitelist = 'whitelist.csv'
 overview = 'overview.csv'
-'''df = pd.read_csv(whitelist, index_col = 'UID')    
-df2 = pd.read_csv(overview)'''
 from flask_migrate import Migrate
 migrate = Migrate(app,db)
 
