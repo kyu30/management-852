@@ -153,7 +153,7 @@ def add_entry():
         uid = data['uid'].strip().upper(),
         name = data['name'].strip().upper(),
         access=data['permissions'].strip().upper(),
-        host = data['host'].strip(),
+        host = data['host'].strip().upper(),
         last_used = dt.now()
     )
     db.session.add(new)

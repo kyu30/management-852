@@ -5,10 +5,10 @@
 
 const char* ssid = "Myhoo";         
 const char* password = "6301e89a44"; 
-const char* mqtt_server = "192.168.0.101";
+const char* mqtt_server = "192.168.0.105";
 const int port = 1883;
 
-RELAY_PIN = 5 //Change this later for lock
+//RELAY_PIN = 5 //Change this later for lock
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
@@ -25,7 +25,7 @@ void callback(char* topic, byte* payload, unsigned int length){
 
   if (message = "Access Granted") {
     Serial.println("Access granted. Unlocking...");
-    digitalWrite(RELAY_PIN, HIGH);
+    //digitalWrite(RELAY_PIN, HIGH);
     delay(5000);
   } else if (message == "Access Denied") {
     Serial.println("Access denied");
@@ -58,7 +58,7 @@ void reconnect(){
       client.subscribe("door/control");
     } else {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.println(client.state());
       delay(2000);
     }
   }

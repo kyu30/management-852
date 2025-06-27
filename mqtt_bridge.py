@@ -4,7 +4,7 @@ from datetime import datetime
 import sqlite3
 
 HEROKU_ENDPOINT = "https://management-852-40069d69dc54.herokuapp.com/scan"
-BROKER_IP = "192.168.0.101"
+BROKER_IP = "192.168.0.105"
 TOPIC_PREFIX = "rfid/"
 
 def setup_db():
