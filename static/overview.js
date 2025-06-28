@@ -29,9 +29,9 @@ function fetchWhitelist(){
                 <td>${entry.uid}</td>
                 <td>${entry.name}</td>
                 <td>${entry.access}</td>
+                 <td>${entry.door}</td>
                 <td>${entry.host}</td>
                 <td>${entry.last_used}</td>
-                <td>${entry.door}</td>
                 `;
                 whitelist.appendChild(row);
         });

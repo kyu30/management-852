@@ -25,8 +25,8 @@ function fetchWhitelist(){
                 <td>${entry.uid}</td>
                 <td>${entry.name}</td>
                 <td>${entry.access}</td>
-                <td>${entry.last_used}</td>
                 <td>${entry.host}</td>
+                <td>${entry.last_used}</td>
                 <td><button onclick = "deleteEntry('${entry.uid}')">Delete</button></td>
                 `;
                 whitelist.appendChild(row);
