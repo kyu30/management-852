@@ -5,31 +5,23 @@
 
 const char* ssid = "Myhoo";         
 const char* password = "6301e89a44"; 
-const char* mqtt_server = "192.168.0.105";
+const char* mqtt_server = "192.168.0.106";
 const int port = 1883;
-
-//RELAY_PIN = 5 //Change this later for lock
+const int relayPin = A5;
+const String udoor = "Guest";
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 
 void callback(char* topic, byte* payload, unsigned int length){
-  String message = "";
-  for (unsigned int i = 0; i <length; i++) {
-    message += (char)payload[i];
-  }
-  Serial.print("Message received on topic [");
-  Serial.print(topic);
-  Serial.print("]: ");
+
+  String message = String((char*)payload).substring(0,length);
+  Serial.print("Message received on topic: ");
+  Serial.println(topic);
+  Serial.print("Payload: ");
   Serial.println(message);
-
-  if (message = "Access Granted") {
-    Serial.println("Access granted. Unlocking...");
-    //digitalWrite(RELAY_PIN, HIGH);
-    delay(5000);
-  } else if (message == "Access Denied") {
-    Serial.println("Access denied");
-
+  if (String(topic) == "rfid/" + udoor + "/override" || ((String(topic) == "rfid/" + udoor + "/result" && message == "granted"))) {
+    unlockDoor();
   }
 }
 
@@ -55,7 +47,8 @@ void reconnect(){
     Serial.print("Connecting to MQTT...");
     if (client.connect("Office")) {
       Serial.println("Connected.");
-      client.subscribe("door/control");
+      client.subscribe(("rfid/" + udoor + "/override").c_str());
+      client.subscribe(("rfid/" + udoor + "/result").c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.println(client.state());
@@ -65,6 +58,8 @@ void reconnect(){
 }
 
 void setup(){
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, HIGH);
   Serial.begin(115200);
   SPI.begin();
   mfrc522.PCD_Init();
@@ -93,10 +88,19 @@ void loop(){
 
   Serial.print("Card UID: ");
   Serial.println(uid);
-
-  String payload = "Guest-" + uid;
-  client.publish("rfid/Guest", payload.c_str(), true);
+  String payload = udoor+ "-" + uid;
+  client.publish(("rfid/"+ udoor + "/scan").c_str(), payload.c_str(), true);
   Serial.println("Published to MQTT.");
+  mfrc522.PICC_HaltA();
+  mfrc522.PCD_StopCrypto1();
+  delay(1000);
+}
 
-  delay(2000);
+void unlockDoor(){
+  Serial.println("Unlocking");
+  digitalWrite(relayPin, LOW);
+  delay(5000);
+  digitalWrite(relayPin, HIGH);
+  Serial.println("Locking");
+  Serial.println("Reader reset, ready for next scan");
 }
